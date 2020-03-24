@@ -14,6 +14,10 @@ app.get( "/", ( req, res ) => {
     console.log('Express Home')
 });
 
+app.get("/values/:id" (req,res) => {
+    
+})
+
 app.listen( port, () => {
     // tslint:disable-next-line:no-console
     console.log(`server started at http://localhost:${ port }`);
