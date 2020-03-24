@@ -1,13 +1,20 @@
-import * as mqtt from 'mqtt';
+import express from 'express';
+import { MQTTHandler } from './mqtthandler'
+import bodyParser from 'body-parser'
 
-const client = mqtt.connect('mqtt://52.157.91.193');
-const topic = '#';
+const app = express();
+const port = 3000; // default port to listen
 
-client.on('message', (topic: any, message: any)=>{
-    message = message.toString();
-    console.log(message + " " + topic);
-})
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
 
-client.on('connect', () =>{
-    client.subscribe(topic)
-})
+var mqttClient = new MQTTHandler('mqtt://52.157.91.193', ['#']);
+
+app.get( "/", ( req, res ) => {
+    console.log('Express Home')
+});
+
+app.listen( port, () => {
+    // tslint:disable-next-line:no-console
+    console.log(`server started at http://localhost:${ port }`);
+});
