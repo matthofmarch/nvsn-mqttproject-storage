@@ -9,3 +9,6 @@ export const ReadingSchema = new mongoose.Schema({
     value: {type: Number, required: true},
     time: {type: Date, required: true}
 });
+
+const Reading = mongoose.model<IReading>('Reading', ReadingSchema);
+export default Reading;

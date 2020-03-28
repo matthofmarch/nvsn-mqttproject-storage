@@ -9,13 +9,11 @@ export interface ISensor extends mongoose.Document {
     readings: Array<IReading>; 
 };
 
-
 export const SensorSchema = new mongoose.Schema({
-    id: { type: Number, required: true, unique: true },
     name: { type: String, required: true },
     type: { type: String, required: true },
     unit: { type: String, required: true },
-    readings: { type: [ReadingSchema], required: true }
+    readings: { type: [ReadingSchema] }
 });
   
 const Sensor = mongoose.model<ISensor>('Sensor', SensorSchema);
