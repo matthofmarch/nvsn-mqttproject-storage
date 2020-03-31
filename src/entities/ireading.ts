@@ -1,14 +1,14 @@
 import * as mongoose from 'mongoose'
 
-export interface IReading extends mongoose.Document {
+export interface IMeasurement extends mongoose.Document {
     value: Number
     time: Date
 };
 
-export const ReadingSchema = new mongoose.Schema({
+export const MeasurementSchema = new mongoose.Schema({
     value: {type: Number, required: true},
     time: {type: Date, required: true}
 });
 
-const Reading = mongoose.model<IReading>('Reading', ReadingSchema);
-export default Reading;
+const Measurement = mongoose.model<IMeasurement>('Measurement', MeasurementSchema);
+export default Measurement;

@@ -1,12 +1,21 @@
 //import * as mongoose from 'mongoose'
-const mongoose = require('mongoose')
 import Sensor, { ISensor } from '../entities/isensor';
-import { IReading } from '../entities/ireading';
+import { IMeasurement } from '../entities/ireading';
+import { Mongoose, Connection } from 'mongoose';
+
+const mongoose: Mongoose = require('mongoose')
 
 class MongoRepository {
-
     private ip: string = "172.18.55.97";
-    private db: any; 
+    private db: Connection | undefined; 
+
+    private static _instance: MongoRepository = new MongoRepository();
+    
+    public static get instance() : MongoRepository {
+        return this._instance;
+    }
+    
+    private constructor (){}
 
     public async connect(){
         await mongoose.connect(`mongodb://${this.ip}:27017/test`, {useNewUrlParser: true});
@@ -18,7 +27,7 @@ class MongoRepository {
         });
     }
 
-    public async close(){
+    public async disconnect(){
         mongoose.connection.close();
     }
 
@@ -33,23 +42,55 @@ class MongoRepository {
         }
     }
 
-    public async addReadingToSensor(s: ISensor, r: IReading){
-        if(s === null || s === undefined)
+    public async addReadingToSensor(s: ISensor, r: IMeasurement){
+        if(s === null || s === undefined || r === null || r === undefined)
             return;
 
         try {
-            await s.collection.updateOne({name: "office"}, { $push: {readings: {r}}})
+            await s.collection.updateOne({name: "office"}, { $push: {measurements: {r}}})
         } catch (error) {
             console.log(error);
         }
     }
 
-    public async getReadings(s: ISensor){
+    public async getMeasurements(s: ISensor){
         if(s === null || s === undefined)
             return;
 
         try {
-            return (await s.collection.findOne({name: "office"})).readings;
+            return (await s.collection.findOne({name: "office"})).measurements;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public async findSensorByName(name: string){
+        if(name === null || name === undefined || name === "")
+            return null;
+
+        try {
+            return await this.db?.collection("sensor").findOne({name: "office"});
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public async findInTimeSpan(start: Date, end: Date, sensor: ISensor){
+        if(name === null || name === undefined || name === "")
+            return null;
+
+        try {
+            /*const a = { 
+                $elemMatch: { 
+                    measurements: { 
+                        time: { 
+                            $gte: start, $lte: end 
+                        }
+                    }
+                }
+            }
+
+            return await this.db?.collection("sensor").findOne({ name: sensor.name }, a);     */ 
         } catch (error) {
             console.log(error);
         }

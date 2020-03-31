@@ -9,9 +9,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose = __importStar(require("mongoose"));
 ;
-exports.ReadingSchema = new mongoose.Schema({
+exports.MeasurementSchema = new mongoose.Schema({
     value: { type: Number, required: true },
     time: { type: Date, required: true }
 });
-var Reading = mongoose.model('Reading', exports.ReadingSchema);
-exports.default = Reading;
+var Measurement = mongoose.model('Measurement', exports.MeasurementSchema);
+exports.default = Measurement;

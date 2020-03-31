@@ -36,12 +36,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-//import * as mongoose from 'mongoose'
 var mongoose = require('mongoose');
 var MongoRepository = /** @class */ (function () {
     function MongoRepository() {
         this.ip = "172.18.55.97";
     }
+    Object.defineProperty(MongoRepository, "instance", {
+        get: function () {
+            return this._instance;
+        },
+        enumerable: true,
+        configurable: true
+    });
     MongoRepository.prototype.connect = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -59,7 +65,7 @@ var MongoRepository = /** @class */ (function () {
             });
         });
     };
-    MongoRepository.prototype.close = function () {
+    MongoRepository.prototype.disconnect = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 mongoose.connection.close();
@@ -97,12 +103,12 @@ var MongoRepository = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (s === null || s === undefined)
+                        if (s === null || s === undefined || r === null || r === undefined)
                             return [2 /*return*/];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, s.collection.updateOne({ name: "office" }, { $push: { readings: { r: r } } })];
+                        return [4 /*yield*/, s.collection.updateOne({ name: "office" }, { $push: { measurements: { r: r } } })];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -115,7 +121,7 @@ var MongoRepository = /** @class */ (function () {
             });
         });
     };
-    MongoRepository.prototype.getReadings = function (s) {
+    MongoRepository.prototype.getMeasurements = function (s) {
         return __awaiter(this, void 0, void 0, function () {
             var error_3;
             return __generator(this, function (_a) {
@@ -127,7 +133,7 @@ var MongoRepository = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, s.collection.findOne({ name: "office" })];
-                    case 2: return [2 /*return*/, (_a.sent()).readings];
+                    case 2: return [2 /*return*/, (_a.sent()).measurements];
                     case 3:
                         error_3 = _a.sent();
                         console.log(error_3);
@@ -137,6 +143,55 @@ var MongoRepository = /** @class */ (function () {
             });
         });
     };
+    MongoRepository.prototype.findSensorByName = function (name) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function () {
+            var error_4;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (name === null || name === undefined || name === "")
+                            return [2 /*return*/, null];
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, ((_a = this.db) === null || _a === void 0 ? void 0 : _a.collection("sensor").findOne({ name: "office" }))];
+                    case 2: return [2 /*return*/, _b.sent()];
+                    case 3:
+                        error_4 = _b.sent();
+                        console.log(error_4);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    MongoRepository.prototype.findInTimeSpan = function (start, end, sensor) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                if (name === null || name === undefined || name === "")
+                    return [2 /*return*/, null];
+                try {
+                    /*const a = {
+                        $elemMatch: {
+                            measurements: {
+                                time: {
+                                    $gte: start, $lte: end
+                                }
+                            }
+                        }
+                    }
+        
+                    return await this.db?.collection("sensor").findOne({ name: sensor.name }, a);     */
+                }
+                catch (error) {
+                    console.log(error);
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    MongoRepository._instance = new MongoRepository();
     return MongoRepository;
 }());
 exports.default = MongoRepository;
