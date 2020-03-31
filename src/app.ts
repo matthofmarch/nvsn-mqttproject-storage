@@ -3,7 +3,7 @@ import { MQTTHandler } from './mqtthandler'
 import bodyParser from 'body-parser'
 import MongoRepository from './repository/repository';
 import Sensor from './entities/isensor';
-import Reading, { MeasurementSchema, IMeasurement } from './entities/ireading';
+import Reading, { MeasurementSchema, IMeasurement } from './entities/imeasurement';
 
 const app = express();
 const port = 3000; // default port to listen
@@ -22,7 +22,7 @@ app.get( "/between", ( req, res ) => {
 });
 
 app.get( "/max", ( req, res ) => {
-    console.log('Express Home')
+    console.log('Max: ')
 });
 
 app.get( "/min", ( req, res ) => {
@@ -39,17 +39,3 @@ app.listen(port, () => {
 });
 
 
-
-/*
-function crudTest (){
-    repo.connect();
-
-    const s = new Sensor({name: "tree", type: "co2", unit:"%"});
-    const r = new Reading({value: 50, time: new Date(2020, 2, 3, 14, 34, 2)})
-    //repo.addSensor(s);
-    repo.addReadingToSensor(s, r);
-    repo.getReadings(s).then(x => x.map(y => console.log(y)));
-}
-
-crudTest();
-*/

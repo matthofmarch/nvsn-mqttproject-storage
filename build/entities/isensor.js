@@ -8,13 +8,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose = __importStar(require("mongoose"));
-var ireading_1 = require("./ireading");
+var imeasurement_1 = require("./imeasurement");
 ;
 exports.SensorSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
+    location: { type: String, required: true },
     type: { type: String, required: true },
     unit: { type: String, required: true },
-    measurements: { type: [ireading_1.MeasurementSchema] }
+    measurements: { type: [imeasurement_1.MeasurementSchema] }
 });
 var Sensor = mongoose.model('Sensor', exports.SensorSchema);
 exports.default = Sensor;

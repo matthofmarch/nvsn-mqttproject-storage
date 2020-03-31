@@ -36,6 +36,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+Repository that saves and manages sensor and measurement data
+*/
 var mongoose = require('mongoose');
 var MongoRepository = /** @class */ (function () {
     function MongoRepository() {
@@ -151,7 +154,7 @@ var MongoRepository = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         if (name === null || name === undefined || name === "")
-                            return [2 /*return*/, null];
+                            return [2 /*return*/, undefined];
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 3, , 4]);
@@ -183,6 +186,21 @@ var MongoRepository = /** @class */ (function () {
                     }
         
                     return await this.db?.collection("sensor").findOne({ name: sensor.name }, a);     */
+                }
+                catch (error) {
+                    console.log(error);
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    MongoRepository.prototype.getMaxMeasurement = function (s) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                if (s === null || s === undefined)
+                    return [2 /*return*/];
+                try {
+                    //return await this.db?.collection("sensor").aggregate({name});
                 }
                 catch (error) {
                     console.log(error);

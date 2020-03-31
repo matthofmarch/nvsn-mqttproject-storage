@@ -1,7 +1,10 @@
-//import * as mongoose from 'mongoose'
 import Sensor, { ISensor } from '../entities/isensor';
-import { IMeasurement } from '../entities/ireading';
+import { IMeasurement } from '../entities/imeasurement';
 import { Mongoose, Connection } from 'mongoose';
+
+/*
+Repository that saves and manages sensor and measurement data
+*/
 
 const mongoose: Mongoose = require('mongoose')
 
@@ -64,12 +67,12 @@ class MongoRepository {
         }
     }
 
-    public async findSensorByName(name: string){
+    public async findSensorByName(name: string) : Promise<ISensor | undefined>{
         if(name === null || name === undefined || name === "")
-            return null;
+            return undefined;
 
         try {
-            return await this.db?.collection("sensor").findOne({name: "office"});
+            return await this.db?.collection("sensor").findOne({name: "office"}) as ISensor;
         } catch (error) {
             console.log(error);
         }
@@ -91,6 +94,17 @@ class MongoRepository {
             }
 
             return await this.db?.collection("sensor").findOne({ name: sensor.name }, a);     */ 
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public async getMaxMeasurement (s: ISensor){
+        if(s === null || s === undefined)
+            return;
+
+        try {
+            //return await this.db?.collection("sensor").aggregate({name});
         } catch (error) {
             console.log(error);
         }

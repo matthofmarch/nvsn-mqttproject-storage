@@ -17,7 +17,7 @@ app.get("/", function (req, res) {
 app.get("/between", function (req, res) {
 });
 app.get("/max", function (req, res) {
-    console.log('Express Home');
+    console.log('Max: ');
 });
 app.get("/min", function (req, res) {
     console.log('Express Home');
@@ -29,16 +29,3 @@ app.listen(port, function () {
     // tslint:disable-next-line:no-console
     console.log("server started at http://localhost:" + port);
 });
-/*
-function crudTest (){
-    repo.connect();
-
-    const s = new Sensor({name: "tree", type: "co2", unit:"%"});
-    const r = new Reading({value: 50, time: new Date(2020, 2, 3, 14, 34, 2)})
-    //repo.addSensor(s);
-    repo.addReadingToSensor(s, r);
-    repo.getReadings(s).then(x => x.map(y => console.log(y)));
-}
-
-crudTest();
-*/ 
