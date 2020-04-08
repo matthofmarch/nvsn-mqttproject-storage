@@ -1,5 +1,5 @@
 import Sensor, { ISensor } from '../entities/isensor';
-import { IMeasurement } from '../entities/imeasurement';
+import Measurement, { IMeasurement } from '../entities/imeasurement';
 import { Mongoose, Connection } from 'mongoose';
 
 /*
@@ -9,7 +9,10 @@ Repository that saves and manages sensor and measurement data
 const mongoose: Mongoose = require('mongoose')
 
 class MongoRepository {
-    private ip: string = "172.18.55.97";
+    private ip: string = "localhost";
+    private port: string = "11021";
+    private dbName: string = "smartfarm";
+    private collectionName: string = "sensors";
     private db: Connection | undefined; 
 
     private static _instance: MongoRepository = new MongoRepository();
@@ -20,8 +23,12 @@ class MongoRepository {
     
     private constructor (){}
 
-    public async connect(){
-        await mongoose.connect(`mongodb://${this.ip}:27017/test`, {useNewUrlParser: true});
+    public connect(){
+        console.log("Connecting to MongoDB...")
+
+        mongoose.set('useCreateIndex', true)
+        mongoose.connect(`mongodb://${this.ip}:${this.port}/${this.dbName}`, {useNewUrlParser: true});
+        
         this.db = mongoose.connection;
 
         this.db.on('error', console.error.bind(console, 'connection error:'));
@@ -30,7 +37,13 @@ class MongoRepository {
         });
     }
 
+    public static async instanceAndConnect (){
+        this._instance.connect();
+        return this.instance;
+    }
+
     public async disconnect(){
+        console.log("Disconnecting from MongoDB")
         mongoose.connection.close();
     }
 
@@ -38,77 +51,151 @@ class MongoRepository {
         if(s === null || s === undefined)
             return;
 
+        console.log("Adding Sensor: " + s.path);
+
         try {
             await s.save();
+            return;
         } catch (error) {
             console.log(error);
         }
     }
 
-    public async addReadingToSensor(s: ISensor, r: IMeasurement){
-        if(s === null || s === undefined || r === null || r === undefined)
+
+    public async addReadingToSensor(s: ISensor, meas: IMeasurement){
+        if(s === null || s === undefined || meas === null || meas === undefined)
             return;
 
         try {
-            await s.collection.updateOne({name: "office"}, { $push: {measurements: {r}}})
+            await Sensor.updateOne({name: s.name}, { $push: {measurements: meas}})
+            return;
         } catch (error) {
             console.log(error);
         }
     }
 
-    public async getMeasurements(s: ISensor){
-        if(s === null || s === undefined)
+    public async addReadingToSensorByName(sensorPath: String, meas: IMeasurement){
+        if(name === null || name === undefined || meas === null || meas === undefined)
             return;
 
         try {
-            return (await s.collection.findOne({name: "office"})).measurements;
+            return await Sensor.updateOne( Sensor.getValuesFromPath(sensorPath), { $push: {measurements: meas}});
         } catch (error) {
             console.log(error);
         }
     }
 
-    public async findSensorByName(name: string) : Promise<ISensor | undefined>{
-        if(name === null || name === undefined || name === "")
+    public async getMeasurements(sensorPath: String){
+        if(sensorPath === null || sensorPath === undefined)
+            return;
+
+        try {
+            const ag = Sensor.aggregate([
+                { $match:  Sensor.getValuesFromPath(sensorPath) },
+                { $unwind: "$measurements"},
+                { $replaceRoot: { newRoot: "$measurements" } },
+                { $project: { _id: 0}},
+            ]).exec();
+
+            return ag as IMeasurement[];
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public async findSensorByName(sensorPath: string) : Promise<ISensor | undefined>{
+        if(sensorPath === null || sensorPath === undefined)
             return undefined;
 
         try {
-            return await this.db?.collection("sensor").findOne({name: "office"}) as ISensor;
+            return await Sensor.findOne(Sensor.getValuesFromPath(sensorPath)) as ISensor;
         } catch (error) {
             console.log(error);
         }
     }
 
-    public async findInTimeSpan(start: Date, end: Date, sensor: ISensor){
-        if(name === null || name === undefined || name === "")
+    public async findInTimeSpan(sensorPath: String, start: Date, end: Date){
+        if(sensorPath === null || sensorPath === undefined)
+            return null;
+
+
+        try {
+            const ag = Sensor.aggregate([
+                { $match: Sensor.getValuesFromPath(sensorPath) },
+                { $unwind: "$measurements"},
+                { $match: { "measurements.time": { $gte: start,  $lte: end} }},
+                { $replaceRoot: { newRoot: "$measurements" } },
+                { $project: { _id: 0}}
+            ]).exec();
+
+            return ag as IMeasurement[];
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public async getMaxMeasurement (sensorPath: String){
+        if(sensorPath === null || sensorPath === undefined)
             return null;
 
         try {
-            /*const a = { 
-                $elemMatch: { 
-                    measurements: { 
-                        time: { 
-                            $gte: start, $lte: end 
-                        }
-                    }
-                }
-            }
-
-            return await this.db?.collection("sensor").findOne({ name: sensor.name }, a);     */ 
+            const max = Sensor.aggregate([
+                {$match: Sensor.getValuesFromPath(sensorPath) },
+                {$unwind: "$measurements"},
+                {$project: { measurements: 1, _id: 0}},
+                {$replaceRoot: { newRoot: "$measurements" } },
+                {$sort: {value: -1, time: -1}},
+                {$limit: 1}
+            ]).exec();
+               
+            return max as IMeasurement;
         } catch (error) {
             console.log(error);
         }
     }
 
-    public async getMaxMeasurement (s: ISensor){
-        if(s === null || s === undefined)
-            return;
+    public async getMinMeasurement (sensorPath: String){
+        if(sensorPath === null || sensorPath === undefined)
+            return null;
 
         try {
-            //return await this.db?.collection("sensor").aggregate({name});
+            const max = Sensor.aggregate([
+                {$match: Sensor.getValuesFromPath(sensorPath) },
+                {$unwind: "$measurements"},
+                {$project: { measurements: 1, _id: 0}},
+                {$replaceRoot: { newRoot: "$measurements" } },
+                {$sort: {value: 1, time: -1}},
+                {$limit: 1}
+            ]).exec();
+               
+            return max as IMeasurement;
         } catch (error) {
             console.log(error);
         }
     }
+
+    public async getAverageValue (sensorPath: String){
+        if(sensorPath === null || sensorPath === undefined)
+            return null;
+
+        try {
+            const avg = Sensor.aggregate([
+                {$match: Sensor.getValuesFromPath(sensorPath) },
+                {$unwind: "$measurements"},
+                {$group: {
+                    _id: "$type",
+                    avgValue: {$avg: "$measurements.value"} 
+                  }
+                },
+                {$project: {val: {$trunc: ["$avgValue", 2]}, _id: 0}}
+            ]).exec();
+               
+            return avg as Number;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
 }
 
 export default MongoRepository;

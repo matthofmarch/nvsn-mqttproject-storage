@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "mongo": "^0.1.0",
     "mongoose": "^5.9.6",
     "mqtt": "^3.0.0",
     "tsc": "^1.20150623.0",

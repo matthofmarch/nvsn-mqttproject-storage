@@ -16,8 +16,7 @@ class MQTTHandler {
             this.client.subscribe(element)
         });
 
-        this.client.on('message', async (topic: string, message: any)=>{
-        
+        this.client.on('message', async (topic: string, message: any) => {
             const mes = this.parseMessage(topic, message);
 
             var sensor: ISensor | undefined = await this.repo.findSensorByName(mes.sensorname);
