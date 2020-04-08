@@ -3,7 +3,7 @@ import Measurement, { IMeasurement } from '../entities/imeasurement';
 import { Mongoose, Connection } from 'mongoose';
 
 /*
-Repository that saves and manages sensor and measurement data
+Repository that manages sensor and measurement data through a MongoDB connection
 */
 
 const mongoose: Mongoose = require('mongoose')
@@ -120,15 +120,63 @@ class MongoRepository {
 
 
         try {
-            const ag = Sensor.aggregate([
+            const values = Sensor.aggregate([
                 { $match: Sensor.getValuesFromPath(sensorPath) },
                 { $unwind: "$measurements"},
                 { $match: { "measurements.time": { $gte: start,  $lte: end} }},
                 { $replaceRoot: { newRoot: "$measurements" } },
-                { $project: { _id: 0}}
+                { $project: { _id: 0}},
+                { $sort: {time: 1}}
             ]).exec();
 
-            return ag as IMeasurement[];
+            return values as IMeasurement[];
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public async getCountOfMeasurements(sensorPath: String){
+        if(sensorPath === null || sensorPath === undefined)
+            return 0;
+
+        try {
+            const count = Sensor.aggregate([
+                { $match: Sensor.getValuesFromPath(sensorPath) },
+                { $unwind: "$measurements"},
+                { $group: { _id: null, myCount: { $sum: 1 } } },
+                { $project: { _id: 0 } }
+            ]).exec();
+
+            return count as Number;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    public async findInTimeSpanWithCount(sensorPath: String, start: Date, end: Date, count: number){
+        if(sensorPath === null || sensorPath === undefined)
+            return null;
+
+        try {
+            const values = Sensor.aggregate([
+                { $match: Sensor.getValuesFromPath(sensorPath) },
+                { $unwind: "$measurements"},
+                { $match: { "measurements.time": { $gte: start,  $lte: end} }},
+                { $replaceRoot: { newRoot: "$measurements" } },
+                { $project: { _id: 0}},
+                { $sort: {time: 1}}
+            ]).exec() as IMeasurement[];
+
+            var measCount;
+
+            if((measCount = await this.getCountOfMeasurements(sensorPath)) === undefined)
+                return null;
+
+            const interval: number = Math.floor(measCount as number / count);
+
+            const filteredValues = values.filter((m, i) => i % interval);
+
+            return filteredValues as IMeasurement[];
         } catch (error) {
             console.log(error);
         }

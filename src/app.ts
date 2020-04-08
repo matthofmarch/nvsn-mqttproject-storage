@@ -15,25 +15,77 @@ app.use(bodyParser.urlencoded({ extended: true }))
 const mqttClient: MQTTHandler = new MQTTHandler('mqtt://52.157.91.193', ['#']);
 const repo: MongoRepository = MongoRepository.instance;
 
-
 app.get( "/", ( req, res ) => {
     console.log('Express Home')
 });
 
 app.get("/sensors/:location?/:name?/average", ( req, res ) => {
+    if(location === undefined && name !== undefined)
+        return;
+
     const sensorPath: String = req.params.location + req.params.name;
     res.send(repo.getMaxMeasurement(sensorPath));
 });
 
 app.get("/sensors/:location?/:name?/average", ( req, res ) => {
+    if(location === undefined && name !== undefined)
+        return;
+
     const sensorPath: String = req.params.location + req.params.name;
     res.send(repo.getMinMeasurement(sensorPath));
 });
 
 app.get( "/sensors/:location?/:name?/average", ( req, res ) => {
+    if(location === undefined && name !== undefined)
+        return;
+
     const sensorPath: String = req.params.location + req.params.name;
     res.send(repo.getAverageValue(sensorPath));
 });
+
+app.get( "/sensors/:location?/:name?/average", ( req, res ) => {
+    if(location === undefined && name !== undefined)
+        return;
+
+    const sensorPath: String = req.params.location + req.params.name;
+    res.send(repo.getAverageValue(sensorPath));
+});
+
+//with body
+app.get('/sensors/:location?/:name?/between', function(req, res) {
+    if(location === undefined && name !== undefined)
+        return;
+
+    const sensorPath: String = req.params.location + req.params.name;
+    var startTime = req.query.startTime;
+    var endTime = req.query.endTime;
+    
+    res.send(repo.findInTimeSpan(sensorPath, startTime, endTime));
+});
+
+//with queryy
+app.post('/sensors/:location?/:name?/between', function(req, res) {
+    if(location === undefined && name !== undefined)
+        return;
+
+    const sensorPath: String = req.params.location + req.params.name;
+    var startTime = req.body.startTime;
+    var endTime = req.body.endTime;
+    
+    res.send(repo.findInTimeSpan(sensorPath, startTime, endTime));
+});
+
+app.get('/sensors/:location?/:name?/between/:count', function(req, res) {
+    if(location === undefined && name !== undefined)
+        return;
+
+    const sensorPath: String = req.params.location + req.params.name;
+    var startTime = req.query.startTime;
+    var endTime = req.query.endTime;
+    
+    res.send(repo.findInTimeSpanWithCount(sensorPath, startTime, endTime, parseInt(req.params.count)));
+});
+
 
 app.listen(port, async () => {
     // tslint:disable-next-line:no-console

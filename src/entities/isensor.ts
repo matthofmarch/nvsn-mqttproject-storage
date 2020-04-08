@@ -8,6 +8,7 @@ https://mongoosejs.com/docs/2.7.x/docs/virtuals.html
 https://stackoverflow.com/questions/42448372/typescript-mongoose-static-model-method-property-does-not-exist-on-type
 */
 
+
 export interface ISensor extends mongoose.Document {
     name: String;
     location: String;
@@ -15,6 +16,7 @@ export interface ISensor extends mongoose.Document {
     unit: String;
     measurements: Array<IMeasurement>; 
 
+    //mongoose property
     readonly path: String;
 };  
 
@@ -23,6 +25,7 @@ export interface ISensorModel extends mongoose.Model<ISensor> {
     getValuesFromPath(path: String): {name: String, location: string};
 }
 
+//mongoose Schema
 export const SensorSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     location: { type: String, required: true },
