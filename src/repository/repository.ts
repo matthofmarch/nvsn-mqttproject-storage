@@ -193,7 +193,8 @@ class MongoRepository {
                 {$project: { measurements: 1, _id: 0}},
                 {$replaceRoot: { newRoot: "$measurements" } },
                 {$sort: {value: -1, time: -1}},
-                {$limit: 1}
+                {$limit: 1},
+                {$project: {_id: 0}}
             ]).exec();
                
             return max as IMeasurement;
@@ -207,16 +208,17 @@ class MongoRepository {
             return null;
 
         try {
-            const max = Sensor.aggregate([
+            const min = Sensor.aggregate([
                 {$match: Sensor.getValuesFromPath(sensorPath) },
                 {$unwind: "$measurements"},
                 {$project: { measurements: 1, _id: 0}},
                 {$replaceRoot: { newRoot: "$measurements" } },
                 {$sort: {value: 1, time: -1}},
-                {$limit: 1}
+                {$limit: 1},
+                {$project: {_id: 0}}
             ]).exec();
                
-            return max as IMeasurement;
+            return min as IMeasurement;
         } catch (error) {
             console.log(error);
         }

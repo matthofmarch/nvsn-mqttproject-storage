@@ -19,71 +19,64 @@ app.get( "/", ( req, res ) => {
     console.log('Express Home')
 });
 
-app.get("/sensors/:location?/:name?/average", ( req, res ) => {
-    if(location === undefined && name !== undefined)
+app.get("/sensors/:location?/:name?/max", async ( req, res ) => {
+    if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
-    const sensorPath: String = req.params.location + req.params.name;
-    res.send(repo.getMaxMeasurement(sensorPath));
+    const sensorPath: String = req.params.location +"/" + req.params.name;
+    res.send(await repo.getMaxMeasurement(sensorPath));
 });
 
-app.get("/sensors/:location?/:name?/average", ( req, res ) => {
-    if(location === undefined && name !== undefined)
+app.get("/sensors/:location?/:name?/min", async ( req, res ) => {
+    if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
-    const sensorPath: String = req.params.location + req.params.name;
-    res.send(repo.getMinMeasurement(sensorPath));
+    const sensorPath: String = req.params.location + "/" + req.params.name;
+    res.send(await repo.getMinMeasurement(sensorPath));
 });
 
-app.get( "/sensors/:location?/:name?/average", ( req, res ) => {
-    if(location === undefined && name !== undefined)
+
+app.get( "/sensors/:location?/:name?/average", async ( req, res ) => {
+    if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
-    const sensorPath: String = req.params.location + req.params.name;
-    res.send(repo.getAverageValue(sensorPath));
-});
-
-app.get( "/sensors/:location?/:name?/average", ( req, res ) => {
-    if(location === undefined && name !== undefined)
-        return;
-
-    const sensorPath: String = req.params.location + req.params.name;
-    res.send(repo.getAverageValue(sensorPath));
+    const sensorPath: String = req.params.location +"/" + req.params.name;
+    res.send(await repo.getAverageValue(sensorPath));
 });
 
 //with body
-app.get('/sensors/:location?/:name?/between', function(req, res) {
-    if(location === undefined && name !== undefined)
+app.get('/sensors/:location?/:name?/between', async (req, res) => {
+    if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
-    const sensorPath: String = req.params.location + req.params.name;
+    const sensorPath: String = req.params.location +"/" + req.params.name;
     var startTime = req.query.startTime;
     var endTime = req.query.endTime;
     
-    res.send(repo.findInTimeSpan(sensorPath, startTime, endTime));
+    res.send(await repo.findInTimeSpan(sensorPath, startTime, endTime));
 });
 
 //with queryy
-app.post('/sensors/:location?/:name?/between', function(req, res) {
-    if(location === undefined && name !== undefined)
+app.post('/sensors/:location?/:name?/between', async (req, res) => {
+    if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
-    const sensorPath: String = req.params.location + req.params.name;
+    const sensorPath: String = req.params.location +"/" + req.params.name;
     var startTime = req.body.startTime;
     var endTime = req.body.endTime;
     
-    res.send(repo.findInTimeSpan(sensorPath, startTime, endTime));
+    res.send(await repo.findInTimeSpan(sensorPath, startTime, endTime));
 });
 
-app.get('/sensors/:location?/:name?/between/:count', function(req, res) {
-    if(location === undefined && name !== undefined)
+app.get('/sensors/:location?/:name?/between/:count', async (req, res) => {
+    if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
-    const sensorPath: String = req.params.location + req.params.name;
+    const sensorPath: String = req.params.location +"/" + req.params.name;
     var startTime = req.query.startTime;
     var endTime = req.query.endTime;
     
-    res.send(repo.findInTimeSpanWithCount(sensorPath, startTime, endTime, parseInt(req.params.count)));
+    res.send(await repo.findInTimeSpanWithCount(sensorPath, startTime, endTime, parseInt(req.params.count)));
 });
 
 
@@ -91,20 +84,8 @@ app.listen(port, async () => {
     // tslint:disable-next-line:no-console
     console.log(`server started at http://localhost:${ port }`);
 
-    var s: ISensor = new Sensor({name: "plant", unit:"C", type:"temp", location:"aquarium"});
-    var m1: IMeasurement = new Measurement({time: Date.parse("05.12.2020"), value: 100})
-    var m2: IMeasurement = new Measurement({time: Date.parse("05.12.2014"), value: 80})
 
     repo.connect();
-
-    //repo.addSensor(s);
-    //repo.addReadingToSensorByName("plant", m1);
-    //repo.addReadingToSensorByName("plant", m2);
-
-    const he = await repo.findInTimeSpan("", new Date('2015-10-19'), new Date('2020-10-19'));
-
-    repo.disconnect();
-    console.log(he);
 });
 
 

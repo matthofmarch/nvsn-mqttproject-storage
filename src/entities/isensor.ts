@@ -47,12 +47,11 @@ SensorSchema.virtual('path').get(function (this: ISensor) {
 //static method
 SensorSchema.static('getValuesFromPath', function (path: String) {
     const str: String[] = path.split('/');
+    //console.log("\n\n" + path + " " + str + " " + str.length);
 
-    console.log("\n\n" + str + " " + str.length);
-
-    if(path === "")
+    if(str[0] === "undefined" || str[0] === "")
         return {};
-    else if(str.length === 1)
+    else if(str[1] === "undefined" || str[1] === "")
         return {location: str[0]};
     else
         return {location: str[0], name: str[1]};
