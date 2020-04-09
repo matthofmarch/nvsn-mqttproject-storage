@@ -35,6 +35,13 @@ app.get("/sensors/:location?/:name?/min", async ( req, res ) => {
     res.send(await repo.getMinMeasurement(sensorPath));
 });
 
+app.get("/sensors/:location?/:name?/all", async ( req, res ) => {
+    if(req.params.location === undefined && req.params.name !== undefined)
+        return;
+
+    const sensorPath: String = req.params.location + "/" + req.params.name;
+    res.send(await repo.getMeasurements(sensorPath));
+});
 
 app.get( "/sensors/:location?/:name?/average", async ( req, res ) => {
     if(req.params.location === undefined && req.params.name !== undefined)
@@ -50,32 +57,23 @@ app.get('/sensors/:location?/:name?/between', async (req, res) => {
         return;
 
     const sensorPath: String = req.params.location +"/" + req.params.name;
-    var startTime = req.query.startTime;
-    var endTime = req.query.endTime;
-    
+    var startTime: Date = new Date(req.query.startTime);
+    var endTime: Date = new Date(req.query.endTime);
+
     res.send(await repo.findInTimeSpan(sensorPath, startTime, endTime));
 });
 
-//with queryy
-app.post('/sensors/:location?/:name?/between', async (req, res) => {
+app.get('/sensors/:location?/:name?/:count/between/', async (req, res) => {
     if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
     const sensorPath: String = req.params.location +"/" + req.params.name;
-    var startTime = req.body.startTime;
-    var endTime = req.body.endTime;
+    var startTime: Date = new Date(req.query.startTime);
+    var endTime: Date = new Date(req.query.endTime);
     
-    res.send(await repo.findInTimeSpan(sensorPath, startTime, endTime));
-});
+    //console.log(req.params.count);
+    //console.log(await repo.findInTimeSpanWithCount(sensorPath, startTime, endTime, parseInt(req.params.count)));
 
-app.get('/sensors/:location?/:name?/between/:count', async (req, res) => {
-    if(req.params.location === undefined && req.params.name !== undefined)
-        return;
-
-    const sensorPath: String = req.params.location +"/" + req.params.name;
-    var startTime = req.query.startTime;
-    var endTime = req.query.endTime;
-    
     res.send(await repo.findInTimeSpanWithCount(sensorPath, startTime, endTime, parseInt(req.params.count)));
 });
 

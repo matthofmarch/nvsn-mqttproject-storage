@@ -140,14 +140,14 @@ class MongoRepository {
             return 0;
 
         try {
-            const count = Sensor.aggregate([
+            const count = await Sensor.aggregate([
                 { $match: Sensor.getValuesFromPath(sensorPath) },
                 { $unwind: "$measurements"},
-                { $group: { _id: null, myCount: { $sum: 1 } } },
+                { $group: { _id: null, count: { $sum: 1 } } },
                 { $project: { _id: 0 } }
             ]).exec();
 
-            return count as Number;
+            return count;
         } catch (error) {
             console.log(error);
         }
@@ -158,7 +158,7 @@ class MongoRepository {
             return null;
 
         try {
-            const values = Sensor.aggregate([
+            const values = await Sensor.aggregate([
                 { $match: Sensor.getValuesFromPath(sensorPath) },
                 { $unwind: "$measurements"},
                 { $match: { "measurements.time": { $gte: start,  $lte: end} }},
@@ -167,15 +167,20 @@ class MongoRepository {
                 { $sort: {time: 1}}
             ]).exec() as IMeasurement[];
 
-            var measCount;
+            var measCount: Number;
 
-            if((measCount = await this.getCountOfMeasurements(sensorPath)) === undefined)
+            //fetches the count of measurements and extracts it out of the object
+            if((measCount = (await this.getCountOfMeasurements(sensorPath))[0].count) === undefined)
                 return null;
 
+            console.log(values);
             const interval: number = Math.floor(measCount as number / count);
+            console.log("Interval: " +interval);
 
-            const filteredValues = values.filter((m, i) => i % interval);
-
+            const filteredValues = values.filter((m, i) => !(i % interval));
+            console.log(filteredValues);
+            console.log("FilteredValueLength: " + filteredValues.length);
+            
             return filteredValues as IMeasurement[];
         } catch (error) {
             console.log(error);
