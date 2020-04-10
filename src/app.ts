@@ -12,7 +12,7 @@ const port = 8020; // default port to listen
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const mqttClient: MQTTHandler = new MQTTHandler('mqtt://52.157.91.193', ['#']);
+const mqttClient: MQTTHandler = new MQTTHandler('mqtt://51.136.13.51', ['sensors/+/+']);
 const repo: MongoRepository = MongoRepository.instance;
 
 app.get( "/", ( req, res ) => {

@@ -62,7 +62,7 @@ class MongoRepository {
     }
 
 
-    public async addReadingToSensor(s: ISensor, meas: IMeasurement){
+    public async addMeasurementToSensor(s: ISensor, meas: IMeasurement){
         if(s === null || s === undefined || meas === null || meas === undefined)
             return;
 
@@ -74,7 +74,7 @@ class MongoRepository {
         }
     }
 
-    public async addReadingToSensorByName(sensorPath: String, meas: IMeasurement){
+    public async addMeasurementToSensorByPath(sensorPath: String, meas: IMeasurement){
         if(name === null || name === undefined || meas === null || meas === undefined)
             return;
 

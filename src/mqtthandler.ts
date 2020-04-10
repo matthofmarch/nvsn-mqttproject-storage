@@ -4,6 +4,7 @@ import { IMessageDto } from './entities/imessagedto';
 import MongoRepository from './repository/repository';
 import Sensor, { ISensor } from './entities/isensor';
 import Measurement from './entities/imeasurement';
+import { json } from 'body-parser';
 
 class MQTTHandler {
     client: MqttClient;
@@ -16,25 +17,29 @@ class MQTTHandler {
             this.client.subscribe(element)
         });
 
+        //this.client.on('message', (topic: string, message: any) => console.log(message +topic));
+
         this.client.on('message', async (topic: string, message: any) => {
             const mes = this.parseMessage(topic, message);
 
             var sensor: ISensor | undefined = await this.repo.findSensorByName(mes.sensorname);
-            if (sensor == undefined)
+            if (sensor === undefined)
             {
-                sensor = new Sensor({name: mes.sensorname, type: mes.type, unit: mes.unit, location: mes.location})
+                sensor = new Sensor({name: mes.sensorname, unit: mes.unit, type: mes.type, location: mes.location});
+                this.repo.addSensor(sensor);
             }
 
-            this.repo.addReadingToSensor(sensor, new Measurement({value: mes.value, time: Date.now}))
+            this.repo.addMeasurementToSensor(sensor, new Measurement({value: mes.value, time: Date.now}))
         });
     }
 
     parseMessage(topic: string, message: any): IMessageDto{
-        const mes = message as IMessageDto;
+        const mes = JSON.parse(message) as IMessageDto;
+        console.log(mes);
 
         const topicPath: string[] = topic.split('/');
-        mes.location = topicPath[0];
-        mes.sensorname = topicPath[1];
+        mes.location = topicPath[1];
+        mes.sensorname = topicPath[2];
 
         return mes;
     }
