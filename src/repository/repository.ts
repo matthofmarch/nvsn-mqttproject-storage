@@ -61,14 +61,15 @@ class MongoRepository {
         }
     }
 
-
     public async addMeasurementToSensor(s: ISensor, meas: IMeasurement){
+        //console.log(s)
         if(s === null || s === undefined || meas === null || meas === undefined)
             return;
+            
 
+        console.log("In add" + JSON.stringify(meas));
         try {
-            await Sensor.updateOne({name: s.name}, { $push: {measurements: meas}})
-            return;
+            return await Sensor.updateOne(Sensor.getValuesFromPath(s.path), { $push: {measurements: meas}})
         } catch (error) {
             console.log(error);
         }
@@ -78,6 +79,7 @@ class MongoRepository {
         if(name === null || name === undefined || meas === null || meas === undefined)
             return;
 
+        console.log(meas);
         try {
             return await Sensor.updateOne( Sensor.getValuesFromPath(sensorPath), { $push: {measurements: meas}});
         } catch (error) {
@@ -103,7 +105,7 @@ class MongoRepository {
         }
     }
 
-    public async findSensorByName(sensorPath: string) : Promise<ISensor | undefined>{
+    public async findSensorByPath(sensorPath: string){
         if(sensorPath === null || sensorPath === undefined)
             return undefined;
 

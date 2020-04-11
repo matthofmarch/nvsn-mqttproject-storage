@@ -17,19 +17,18 @@ class MQTTHandler {
             this.client.subscribe(element)
         });
 
-        //this.client.on('message', (topic: string, message: any) => console.log(message +topic));
-
         this.client.on('message', async (topic: string, message: any) => {
             const mes = this.parseMessage(topic, message);
 
-            var sensor: ISensor | undefined = await this.repo.findSensorByName(mes.sensorname);
-            if (sensor === undefined)
+            var sensor: ISensor | undefined = await this.repo.findSensorByPath(mes.location + "/" + mes.sensorname);
+            if (sensor === undefined || sensor === null)
             {
                 sensor = new Sensor({name: mes.sensorname, unit: mes.unit, type: mes.type, location: mes.location});
                 this.repo.addSensor(sensor);
             }
 
-            this.repo.addMeasurementToSensor(sensor, new Measurement({value: mes.value, time: Date.now}))
+            console.log("Adding" + sensor);
+            this.repo.addMeasurementToSensor(sensor, new Measurement({value: mes.value, time: Date.now()}));
         });
     }
 
