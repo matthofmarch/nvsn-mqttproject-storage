@@ -1,4 +1,5 @@
 import express, { response } from 'express';
+import cors from "cors";
 import { MQTTHandler } from './mqtthandler'
 import bodyParser from 'body-parser'
 import MongoRepository from './repository/repository';
@@ -7,6 +8,7 @@ import Reading, { MeasurementSchema, IMeasurement } from './entities/imeasuremen
 import Measurement from './entities/imeasurement';
 
 const app = express();
+app.use(cors())
 const port = 8020; // default port to listen
 
 app.use(bodyParser.json());
@@ -57,8 +59,8 @@ app.get('/sensors/:location?/:name?/between', async (req, res) => {
         return;
 
     const sensorPath: String = req.params.location +"/" + req.params.name;
-    var startTime: Date = new Date(req.query.startTime);
-    var endTime: Date = new Date(req.query.endTime);
+    var startTime: Date = new Date(req.query.startTime as string);
+    var endTime: Date = new Date(req.query.endTime as string);
 
     res.send(await repo.findInTimeSpan(sensorPath, startTime, endTime));
 });
@@ -68,8 +70,8 @@ app.get('/sensors/:location?/:name?/:count/between/', async (req, res) => {
         return;
 
     const sensorPath: String = req.params.location +"/" + req.params.name;
-    var startTime: Date = new Date(req.query.startTime);
-    var endTime: Date = new Date(req.query.endTime);
+    var startTime: Date = new Date(req.query.startTime as string);
+    var endTime: Date = new Date(req.query.endTime as string);
     
     //console.log(req.params.count);
     //console.log(await repo.findInTimeSpanWithCount(sensorPath, startTime, endTime, parseInt(req.params.count)));
