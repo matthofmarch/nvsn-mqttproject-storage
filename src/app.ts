@@ -6,30 +6,38 @@ import MongoRepository from './repository/repository';
 import Sensor, { ISensor } from './entities/isensor';
 import Reading, { MeasurementSchema, IMeasurement } from './entities/imeasurement';
 import Measurement from './entities/imeasurement';
+import { AppSettings } from './appsettings';
+
+/* REST API for some statistical and aggregator functions*/
+
 
 const app = express();
 app.use(cors())
-const port = 8020; // default port to listen
+const port = AppSettings.SERVER_PORT; // default port to listen
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const mqttClient: MQTTHandler = new MQTTHandler('mqtt://51.136.13.51', ['sensors/+/+']);
+//Initialization of Services
+
+const mqttClient: MQTTHandler = new MQTTHandler(AppSettings.MQTT_CONNECTION, ['sensors/+/+', 'sensor/+/+']);
 const repo: MongoRepository = MongoRepository.instance;
 
 app.get( "/", ( req, res ) => {
     console.log('Express Home')
 });
 
+//Basic Stats Routes
+
 app.get("/sensors/:location?/:name?/max", async ( req, res ) => {
     if(req.params.location === undefined && req.params.name !== undefined)
         return;
 
-    const sensorPath: String = req.params.location +"/" + req.params.name;
+    const sensorPath: String = req.params.location +"/" + req.params.name; //compose "sensorpath"
     res.send(await repo.getMaxMeasurement(sensorPath));
 });
 
-app.get("/sensors/:location?/:name?/min", async ( req, res ) => {
+app.get("/sensors/:location?/:name?/min", async ( req, res ) => { //location name can be optional and makes fetching of specific groups or sensors easy
     if(req.params.location === undefined && req.params.name !== undefined)
         return;
 

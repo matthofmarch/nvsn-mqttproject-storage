@@ -6,6 +6,11 @@ import Sensor, { ISensor } from './entities/isensor';
 import Measurement from './entities/imeasurement';
 import { json } from 'body-parser';
 
+/*
+Handles all incoming messages (Measurements) and automatically saves
+them in the repository
+*/
+
 class MQTTHandler {
     client: MqttClient;
     repo: MongoRepository = MongoRepository.instance;

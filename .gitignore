@@ -3,6 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=node
 
 src/other
+.env
 
 ### Node ###
 # Logs

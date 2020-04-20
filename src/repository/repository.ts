@@ -1,6 +1,7 @@
 import Sensor, { ISensor } from '../entities/isensor';
 import Measurement, { IMeasurement } from '../entities/imeasurement';
 import { Mongoose, Connection } from 'mongoose';
+import { AppSettings } from '../appsettings';
 
 /*
 Repository that manages sensor and measurement data through a MongoDB connection
@@ -9,10 +10,6 @@ Repository that manages sensor and measurement data through a MongoDB connection
 const mongoose: Mongoose = require('mongoose')
 
 class MongoRepository {
-    private ip: string = "localhost";
-    private port: string = "11021";
-    private dbName: string = "smartfarm";
-    private collectionName: string = "sensors";
     private db: Connection | undefined; 
 
     private static _instance: MongoRepository = new MongoRepository();
@@ -27,7 +24,7 @@ class MongoRepository {
         console.log("Connecting to MongoDB...")
 
         mongoose.set('useCreateIndex', true)
-        mongoose.connect(`mongodb://${this.ip}:${this.port}/${this.dbName}`, {useNewUrlParser: true});
+        mongoose.connect(AppSettings.MONGO_CONNECTION, {useNewUrlParser: true});
         
         this.db = mongoose.connection;
 
@@ -105,7 +102,7 @@ class MongoRepository {
         }
     }
 
-    public async findSensorByPath(sensorPath: string){
+    public async findSensorByPath(sensorPath: string) : Promise<ISensor | undefined>{
         if(sensorPath === null || sensorPath === undefined)
             return undefined;
 
